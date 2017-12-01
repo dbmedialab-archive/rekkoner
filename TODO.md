@@ -52,3 +52,11 @@ in the declared intention files, then operate on it", but it's not so: this will
 into the spiked pit trap of incomplete-worldview-causes-memory-leaks all over again.
 
 Expect to find more of these over time.
+
+Maybe we should make a default brownlist of properties we *know* the common parts
+of the k8s tools and community will make stateful messes in, and hardcode that
+into our tool, and also have support for each object in the user's intents to
+have a config tree dangling on the side that lists other properties to ignore.
+Other properties changes generate yellow lights in the dashboard with a "nuke" button
+but also don't trigger nuking by default because so much of k8s leans on these
+stateful scantily-documented string bags.
