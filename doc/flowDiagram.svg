@@ -1,0 +1,103 @@
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="551px" height="162px" version="1.1" content="&lt;mxfile userAgent=&quot;Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/62.0.3202.94 Chrome/62.0.3202.94 Safari/537.36&quot; version=&quot;7.7.8&quot; editor=&quot;www.draw.io&quot;&gt;&lt;diagram id=&quot;807830e6-20bf-5160-3dd2-65527c06d1c8&quot; name=&quot;Page-1&quot;&gt;1VhNc5swEP01XDMIMLaPzUfbS6eZujNNjjKsQWOBGCFs3F/fxQjzIZw4HjtJfbH2SVqt3q7fgi33Lim/SZrFP0QI3HLssLTce8txCJlN8KtCdjUy9ZwaiCQL9aIWWLC/oEFbowULIe8tVEJwxbI+GIg0hUD1MCql2PaXrQTvn5rRCAxgEVBuon9YqOIanU3sFv8OLIqbk4mtZ5Y0WEdSFKk+z3Lc1f5TTye08aXX5zENxbYDuQ+WeyeFUPUoKe+AV9w2tNX7vh6ZPcQtIVWnbNBp2VBe6KsvFj9/30RM6fjUruFExiJZFkjs7TZmChYZDaqZLVYAYrFKOFoEh9olSAXl0bDI4bJYRCASUHKHS5oNvuZH189Mm9tOMjQUd/LQYFSnPzo4binAgWZhnBHXYGQ9y6tS40WuQBq0YAazahhDSSOR4v0zkAyPxbUH9LGBnHehz5u+Sh9xrsSfZ/BnOT5NqkumyzzbX9AegX7Bei3SFwhG9rMBuxX02NqvMbtiJTRicyGmXbvP9Nxkej5CtH8BoicG0Vuqghhl0/E5nnMbsg0Oo2q4lDQN4mYCPXfmDMIhDb9UGopWwGmes6BPI1Ijd09o2I3xXBk3k8osmXpq1uG4namPgdAQ3gHVGIooZAA9fVJURqA6BWYmpMP4ZITxBpPAqWKbfhBjadAnPAqG4R0VJiyAvos6eL2rK7wDR4dWpx2R4W+vvrLhaF8Vh2ufVCi+qWjFErsm/2SZ/6icuvNBKsj8xu98pt55KfZ8f9TPicdcrgAIMSogLhKajgjFCAQhU/kx6ThJUJRkNI0q6zWFppxF2ELvOazUZQTa6+fWG+mE9pUEmpgPVyFkXFTR5SA3DEkw6Y4kQMr3kfx37JJ3pdd8Unu7oGnRaiXsuatuhtSRsxtZUwzdTuZ8pOoNUudMz2xkA/E8vNlcQcbGHi0vkvAXetv5CW/eWz9LwsngUZX43kXaHBm2T+9KfQ3N9sW4Xt7+++A+/AM=&lt;/diagram&gt;&lt;/mxfile&gt;" style="background-color: rgb(255, 255, 255);">
+	<defs />
+	<g transform="translate(0.5,0.5)">
+		<path d="M 160 40 L 200 80 L 160 120 L 120 80 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
+		<g transform="translate(136.5,73.5)">
+			<switch>
+				<foreignObject style="overflow:visible;" pointer-events="all" width="46" height="12" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+					<div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; width: 48px; white-space: nowrap; word-wrap: normal; text-align: center;">
+						<div style="display:inline-block;text-align:inherit;text-decoration:inherit;">SSOT.git</div>
+					</div>
+				</foreignObject>
+				<text x="23" y="12" fill="#000000" text-anchor="middle" font-size="12px" font-family="Helvetica">SSOT.git</text>
+			</switch>
+		</g>
+		<path d="M 460 40 L 520 40 L 550 80 L 520 120 L 460 120 L 430 80 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
+		<g transform="translate(460.5,73.5)">
+			<switch>
+				<foreignObject style="overflow:visible;" pointer-events="all" width="58" height="12" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+					<div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; width: 59px; white-space: nowrap; word-wrap: normal; text-align: center;">
+						<div style="display:inline-block;text-align:inherit;text-decoration:inherit;">k8s cluster</div>
+					</div>
+				</foreignObject>
+				<text x="29" y="12" fill="#000000" text-anchor="middle" font-size="12px" font-family="Helvetica">k8s cluster</text>
+			</switch>
+		</g>
+		<path d="M 260 50 L 330 50 L 350 80 L 330 110 L 260 110 L 280 80 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
+		<g transform="translate(272.5,73.5)">
+			<switch>
+				<foreignObject style="overflow:visible;" pointer-events="all" width="65" height="12" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+					<div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; width: 66px; white-space: nowrap; word-wrap: normal; text-align: center;">
+						<div style="display:inline-block;text-align:inherit;text-decoration:inherit;">    Rekkoner</div>
+					</div>
+				</foreignObject>
+				<text x="33" y="12" fill="#000000" text-anchor="middle" font-size="12px" font-family="Helvetica">&amp;nbsp; &amp;nbsp; Rekkoner</text>
+			</switch>
+		</g>
+		<path d="M 200 79.67 L 270.3 79.67" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
+		<path d="M 275.55 79.67 L 268.55 83.17 L 270.3 79.67 L 268.55 76.17 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
+		<g transform="translate(217.5,67.5)">
+			<switch>
+				<foreignObject style="overflow:visible;" pointer-events="all" width="41" height="24" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+					<div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 11px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; white-space: nowrap; text-align: center;">
+						<div style="display:inline-block;text-align:inherit;text-decoration:inherit;background-color:#ffffff;">
+							watches
+							<div>branch</div>
+						</div>
+					</div>
+				</foreignObject>
+				<text x="21" y="18" fill="#000000" text-anchor="middle" font-size="11px" font-family="Helvetica">[Not supported by viewer]</text>
+			</switch>
+		</g>
+		<path d="M 350 79.67 L 420.3 79.67" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
+		<path d="M 425.55 79.67 L 418.55 83.17 L 420.3 79.67 L 418.55 76.17 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
+		<g transform="translate(370.5,73.5)">
+			<switch>
+				<foreignObject style="overflow:visible;" pointer-events="all" width="35" height="11" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+					<div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 11px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; white-space: nowrap; text-align: center;">
+						<div style="display:inline-block;text-align:inherit;text-decoration:inherit;background-color:#ffffff;">kubectl</div>
+					</div>
+				</foreignObject>
+				<text x="18" y="11" fill="#000000" text-anchor="middle" font-size="11px" font-family="Helvetica">kubectl</text>
+			</switch>
+		</g>
+		<path d="M 0 0 L 100 30 L 0 60 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
+		<g transform="translate(2.5,16.5)">
+			<switch>
+				<foreignObject style="overflow:visible;" pointer-events="all" width="38" height="26" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+					<div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; width: 39px; white-space: nowrap; word-wrap: normal;">
+						<div style="display:inline-block;text-align:inherit;text-decoration:inherit;">
+							human
+							<div>
+								<div>edits</div>
+							</div>
+						</div>
+					</div>
+				</foreignObject>
+				<text x="19" y="19" fill="#000000" text-anchor="middle" font-size="12px" font-family="Helvetica">[Not supported by viewer]</text>
+			</switch>
+		</g>
+		<path d="M 0 100 L 100 130 L 0 160 Z" fill="#ffffff" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
+		<g transform="translate(2.5,116.5)">
+			<switch>
+				<foreignObject style="overflow:visible;" pointer-events="all" width="79" height="26" requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+					<div xmlns="http://www.w3.org/1999/xhtml" style="display: inline-block; font-size: 12px; font-family: Helvetica; color: rgb(0, 0, 0); line-height: 1.2; vertical-align: top; width: 80px; white-space: nowrap; word-wrap: normal;">
+						<div style="display:inline-block;text-align:inherit;text-decoration:inherit;">
+							deploy service
+							<div>greenlight</div>
+						</div>
+					</div>
+				</foreignObject>
+				<text x="40" y="19" fill="#000000" text-anchor="middle" font-size="12px" font-family="Helvetica">[Not supported by viewer]</text>
+			</switch>
+		</g>
+		<path d="M 50 114.67 L 133.72 100.71" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
+		<path d="M 138.9 99.85 L 132.57 104.45 L 133.72 100.71 L 131.42 97.55 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
+		<path d="M 50 44.67 L 133.72 58.62" fill="none" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
+		<path d="M 138.9 59.48 L 131.42 61.78 L 133.72 58.62 L 132.57 54.88 Z" fill="#000000" stroke="#000000" stroke-miterlimit="10" pointer-events="none" />
+	</g>
+</svg>
