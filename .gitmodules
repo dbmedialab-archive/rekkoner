@@ -1,0 +1,54 @@
+[submodule ".gopath/src/gopkg.in/yaml.v2"]
+	path = .gopath/src/gopkg.in/yaml.v2
+	url = https://gopkg.in/yaml.v2
+[submodule ".gopath/src/github.com/mailru/easyjson"]
+	path = .gopath/src/github.com/mailru/easyjson
+	url = https://github.com/mailru/easyjson
+[submodule ".gopath/src/github.com/evanphx/json-patch"]
+	path = .gopath/src/github.com/evanphx/json-patch
+	url = https://github.com/evanphx/json-patch
+[submodule ".gopath/src/github.com/PuerkitoBio/purell"]
+	path = .gopath/src/github.com/PuerkitoBio/purell
+	url = https://github.com/PuerkitoBio/purell
+[submodule ".gopath/src/github.com/PuerkitoBio/urlesc"]
+	path = .gopath/src/github.com/PuerkitoBio/urlesc
+	url = https://github.com/PuerkitoBio/urlesc
+[submodule ".gopath/src/github.com/golang/glog"]
+	path = .gopath/src/github.com/golang/glog
+	url = https://github.com/golang/glog
+[submodule ".gopath/src/github.com/google/gofuzz"]
+	path = .gopath/src/github.com/google/gofuzz
+	url = https://github.com/google/gofuzz
+[submodule ".gopath/src/github.com/emicklei/go-restful"]
+	path = .gopath/src/github.com/emicklei/go-restful
+	url = https://github.com/emicklei/go-restful
+[submodule ".gopath/src/github.com/go-openapi/spec"]
+	path = .gopath/src/github.com/go-openapi/spec
+	url = https://github.com/go-openapi/spec
+[submodule ".gopath/src/github.com/go-openapi/swag"]
+	path = .gopath/src/github.com/go-openapi/swag
+	url = https://github.com/go-openapi/swag
+[submodule ".gopath/src/github.com/go-openapi/jsonpointer"]
+	path = .gopath/src/github.com/go-openapi/jsonpointer
+	url = https://github.com/go-openapi/jsonpointer
+[submodule ".gopath/src/github.com/go-openapi/jsonreference"]
+	path = .gopath/src/github.com/go-openapi/jsonreference
+	url = https://github.com/go-openapi/jsonreference
+[submodule ".gopath/src/k8s.io/api"]
+	path = .gopath/src/k8s.io/api
+	url = https://github.com/kubernetes/api
+[submodule ".gopath/src/k8s.io/kube-openapi"]
+	path = .gopath/src/k8s.io/kube-openapi
+	url = https://github.com/kubernetes/kube-openapi
+[submodule ".gopath/src/k8s.io/client-go"]
+	path = .gopath/src/k8s.io/client-go
+	url = https://github.com/kubernetes/client-go
+[submodule ".gopath/src/k8s.io/apimachinery"]
+	path = .gopath/src/k8s.io/apimachinery
+	url = https://github.com/kubernetes/apimachinery
+[submodule ".gopath/src/golang.org/x/net"]
+	path = .gopath/src/golang.org/x/net
+	url = https://go.googlesource.com/net
+[submodule ".gopath/src/golang.org/x/text"]
+	path = .gopath/src/golang.org/x/text
+	url = https://go.googlesource.com/text
