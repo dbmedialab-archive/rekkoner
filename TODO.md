@@ -60,3 +60,21 @@ have a config tree dangling on the side that lists other properties to ignore.
 Other properties changes generate yellow lights in the dashboard with a "nuke" button
 but also don't trigger nuking by default because so much of k8s leans on these
 stateful scantily-documented string bags.
+
+
+making a believably useful dashboard
+------------------------------------
+
+The default tables emitted by e.g. `kubectl get pods --all-namespaces` seem
+almost intentionally obtuse:
+
+```
+NAMESPACE        NAME                                 READY     STATUS              RESTARTS   AGE
+default          demoapp-7c68d89475-khvlc             0/1       ImagePullBackOff    0          19h
+```
+
+Does that tell us literally ANYTHING useful about how fucked that pod is, or why?
+No.  No it does not.
+
+Bare minimum: let's make a pact with our future selves to have the sheer respect to at least
+list *when* the last status update was?
