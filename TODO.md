@@ -47,6 +47,8 @@ that's *literally what all this is* at the end of the day.
 `k8s.io/apimachinery/pkg/apis/meta/v1.OwnerReference` appears to be the serial
 format for the owner json that gets slammed into an annotation string.
 
+`k8s.io/api/core/v1.ObjectReference` is the union of all possible ID fields.
+
 
 
 partially controlled objects

@@ -15,6 +15,12 @@ It's all the first class and second class k8s objects in a namespace.
 
 TODO: We say 'snapshot', but can we, really?  *Should we speak with etcd directly?*
 
+### intentioner
+
+- **configure with:** your entire set of kubernetes yaml files.
+- **consume:** human impulse (or clock ticks, or git pulls in practice)
+- **produce:** `userIntent` set.
+
 ### gapAnalyzer
 
 - **configure with:** nothing?
