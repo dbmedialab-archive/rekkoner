@@ -19,7 +19,7 @@ type Controller struct {
 	indexer  cache.Indexer
 	queue    workqueue.RateLimitingInterface
 	informer cache.Controller
-	memory   map[string]*v1.Pod
+	memory   map[string]*v1.Namespace
 }
 
 func NewController(queue workqueue.RateLimitingInterface, indexer cache.Indexer, informer cache.Controller) *Controller {
@@ -27,7 +27,7 @@ func NewController(queue workqueue.RateLimitingInterface, indexer cache.Indexer,
 		indexer:  indexer,
 		queue:    queue,
 		informer: informer,
-		memory:   make(map[string]*v1.Pod),
+		memory:   make(map[string]*v1.Namespace),
 	}
 }
 
@@ -65,9 +65,9 @@ func (c *Controller) syncToStdout(key string) error {
 	} else {
 		// Note that you also have to check the uid if you have a local controlled resource, which
 		// is dependent on the actual instance, to detect that a Pod was recreated with the same name
-		fmt.Printf("Sync/Add/Update for Pod %q >>>\n", obj.(*v1.Pod).GetName())
+		fmt.Printf("Sync/Add/Update for Pod %q >>>\n", obj.(*v1.Namespace).GetName())
 		prev, existed := c.memory[key]
-		c.memory[key] = obj.(*v1.Pod)
+		c.memory[key] = obj.(*v1.Namespace)
 		if !existed {
 			fmt.Printf("\ttotally new!\n\n")
 			return nil
