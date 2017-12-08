@@ -6,6 +6,7 @@ import (
 	"k8s.io/api/core/v1"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/tools/clientcmd"
@@ -44,7 +45,10 @@ func main() {
 	// whenever the cache is updated, the pod key is added to the workqueue.
 	// Note that when we finally process the item from the workqueue, we might see a newer version
 	// of the Pod than the version which was responsible for triggering the update.
-	indexer, informer := cache.NewIndexerInformer(podListWatcher, &v1.Pod{}, 0, cache.ResourceEventHandlerFuncs{
+	//
+	// There's a requirement that whatever you use as the type here implement
+	// k8s.io/apimachinery/pkg/runtime.Object ... so we do that.
+	indexer, informer := cache.NewIndexerInformer(podListWatcher, runtime.Object(nil), 0, cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
 			key, err := cache.MetaNamespaceKeyFunc(obj) // FIXME i have no idea why they don't use UUID here
 			if err == nil {
@@ -75,12 +79,14 @@ func main() {
 	// Let's suppose that we knew about a pod "mypod" on our last run, therefore add it to the cache.
 	// If this pod is not there anymore, the controller will be notified about the removal after the
 	// cache has synchronized.
-	indexer.Add(&v1.Pod{
+	if err := indexer.Add(&v1.Node{
 		ObjectMeta: meta_v1.ObjectMeta{
-			Name:      "mypod",
+			Name:      "hahaha",
 			Namespace: v1.NamespaceDefault,
 		},
-	})
+	}); err != nil {
+		panic(err)
+	}
 
 	// Now let's start the controller
 	stop := make(chan struct{})

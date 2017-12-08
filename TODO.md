@@ -34,6 +34,21 @@ These are almost *certainly* generated (and hopefully also cleaned up by) someth
 - replicationControllers -- they're depreciated in favor of deployments; we don't support them
 
 
+
+how to handle objects "generically"
+----------------------------------
+
+`k8s.io/apimachinery/pkg/runtime.Unstructured` might be the thing to use.
+Or possibly some factory that returns `Object` from that package.
+I literally have no idea how to create a concrete instance of those though; surely
+simple map-backed types that already implement these interfaces should exist, since
+that's *literally what all this is* at the end of the day.
+
+`k8s.io/apimachinery/pkg/apis/meta/v1.OwnerReference` appears to be the serial
+format for the owner json that gets slammed into an annotation string.
+
+
+
 partially controlled objects
 ----------------------------
 
