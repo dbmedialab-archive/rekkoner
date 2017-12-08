@@ -6,7 +6,9 @@ import (
 
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -34,6 +36,19 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	// Please
+	config.GroupVersion = &schema.GroupVersion{Version: "v1"} // nothing matters
+	config.APIPath = "/api"
+	dyn, err := dynamic.NewClient(config)
+	if err != nil {
+		panic(err)
+	}
+	obj, err := dyn.Resource(&meta_v1.APIResource{Name: "namespaces"}, "").List(meta_v1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("WOOW::\n\t%#v\n::\n", obj)
 
 	// Okay, trying to figure out what this cacher thing does and I ended up having
 	// to read a `NewNamedReflector` factory and *still* haven't found any meat...
