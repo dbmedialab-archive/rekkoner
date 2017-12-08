@@ -10,6 +10,7 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 func main() {
@@ -21,9 +22,9 @@ func main() {
 	flag.Parse()
 
 	// creates the connection
-	// TODO please replace this with something with more self-control, this tries way
-	//  too hard to be helpful and add a bunch of flags through globals and... no.
-	config, err := clientcmd.BuildConfigFromFlags(master, kubeconfig)
+	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig},
+		&clientcmd.ConfigOverrides{ClusterInfo: clientcmdapi.Cluster{Server: master}}).ClientConfig()
 	if err != nil {
 		panic(err)
 	}
