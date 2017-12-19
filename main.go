@@ -39,13 +39,25 @@ func main() {
 	}
 
 	// Please
-	config.GroupVersion = &schema.GroupVersion{Version: "v1"} // nothing matters
+	config.GroupVersion = &schema.GroupVersion{Version: "v1"}
 	config.APIPath = "/api"
 	dyn, err := dynamic.NewClient(config)
 	if err != nil {
 		panic(err)
 	}
 	obj, err := dyn.Resource(&meta_v1.APIResource{Name: "namespaces"}, "").List(meta_v1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("WOOW::\n\t%#v\n::\n", obj)
+
+	config.APIPath = "/apis"
+	config.GroupVersion = &schema.GroupVersion{Version: "extensions/v1beta1"}
+	dyn, err = dynamic.NewClient(config)
+	if err != nil {
+		panic(err)
+	}
+	obj, err = dyn.Resource(&meta_v1.APIResource{Name: "deployments"}, "default").List(meta_v1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
