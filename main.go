@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/watch"
@@ -42,7 +44,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("WOOW::\n\t%#v\n::\n", obj)
+	printyeUnstructuredList("namespaces", obj.(*unstructured.UnstructuredList), os.Stdout)
 
 	config.APIPath = "/apis"
 	config.GroupVersion = &schema.GroupVersion{Version: "extensions/v1beta1"}
@@ -54,7 +56,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("WOOW::\n\t%#v\n::\n", obj)
+	printyeUnstructuredList("deployments", obj.(*unstructured.UnstructuredList), os.Stdout)
 
 	// Okay, trying to figure out what this cacher thing does and I ended up having
 	// to read a `NewNamedReflector` factory and *still* haven't found any meat...
@@ -90,5 +92,13 @@ func main() {
 		case evt := <-watchPods.ResultChan():
 			fmt.Printf(":: evt %T %#v\n\n", evt, evt)
 		}
+	}
+}
+
+func printyeUnstructuredList(label string, list *unstructured.UnstructuredList, to io.Writer) {
+	fmt.Fprintf(to, "%s [%s] >>\n", label, list.Object["metadata"].(map[string]interface{})["selfLink"])
+	for i, item := range list.Items {
+		actualItem := item.Object
+		fmt.Printf("\t%.4d -- %#v\n", i, actualItem)
 	}
 }
