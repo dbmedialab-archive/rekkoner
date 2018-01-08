@@ -51,15 +51,25 @@ func main() {
 	//   - so yes, you need to *do $n$ https requests* to *find out what you can ask for*, nbd
 	//     - this explains why `~/.kube/cache/discovery/*` probably exists in your homedir... -.-
 	//       - btw note well none of these have generation numbers or anything you could cachebust with either
+	//   - this is a list of https://godoc.org/k8s.io/apimachinery/pkg/apis/meta/v1#APIResource objects
+	//     - and meta_v1 is the one concrete package we ARE accepting, since it's... kinda baseline
 	// - iterate through this and look for '.name'
 	//   - THIS you can finally match on!  look for e.g. "deployments" here and you should find it.
 	// - and you may want to look for the '.namespaced' bool here as well (but your business
 	//   logic probably already know that one, in practice).
 	//
-	// Implementation: ugh, todo.
-	// (SURELY this should exist in the k8s client packages already.  But can I get at
-	// it in a way that I can A: cache more sanely, and B: compose with the `dynamic.NewClient` route
-	// so that it's literally even fit for use?  Based on prior experiences: less than 50% chance.)
+	// Implementation: actually, this is pretty much what I wanted for once:
+	serverGroups, err := clientset.DiscoveryClient.ServerGroups()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf(":: %T %#v\n\n\n\n\n", serverGroups, serverGroups)
+	serverResources, err := clientset.DiscoveryClient.ServerPreferredResources()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf(":: %T %#v\n\n\n\n\n", serverResources, serverResources)
+	os.Exit(0)
 
 	// Please
 	config.GroupVersion = &schema.GroupVersion{Version: "v1"}
