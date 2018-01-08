@@ -10,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp" // Side-effecting import: load the GCP auth plugin, necessary if your kubeconfig references that.
@@ -34,42 +35,10 @@ func main() {
 	}
 
 	// Figuring out groups, versions, etc:
-	//
-	// I'd kind of like to *not* have to explicitly specify e.g. "extensions/v1beta1/deployments"
-	// or similar pattern of string for *every single* resource I need *multiplied* by wherever
-	// those versions are on the particular version of k8s master I'm talking to.
-	//
-	// So how do we auto-detect that?
-	//
-	// - get 'servergroups.json'
-	// - iterate over '.groups' list
-	// - take '.name' and '.preferredVersion.version' -- plug them into your `schema.GroupVersion`, woot
-	//   - n.b. I *think* strcat'ing those is identical to '.preferredVersion.groupVersion' but ¯\_(ツ)_/¯
-	// - ok, but *what* is that the group+version tuple **for**???  well we don't know yet
-	// - get '$group/$version/serverresources.json'... for all group+version tuples I guess
-	//   - there's apparently no index that lets us find out which kinds will be where... so, yep, all
-	//   - so yes, you need to *do $n$ https requests* to *find out what you can ask for*, nbd
-	//     - this explains why `~/.kube/cache/discovery/*` probably exists in your homedir... -.-
-	//       - btw note well none of these have generation numbers or anything you could cachebust with either
-	//   - this is a list of https://godoc.org/k8s.io/apimachinery/pkg/apis/meta/v1#APIResource objects
-	//     - and meta_v1 is the one concrete package we ARE accepting, since it's... kinda baseline
-	// - iterate through this and look for '.name'
-	//   - THIS you can finally match on!  look for e.g. "deployments" here and you should find it.
-	// - and you may want to look for the '.namespaced' bool here as well (but your business
-	//   logic probably already know that one, in practice).
-	//
-	// Implementation: actually, this is pretty much what I wanted for once:
-	serverGroups, err := clientset.DiscoveryClient.ServerGroups()
+	resources, err := saneDiscovery(config)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf(":: %T %#v\n\n\n\n\n", serverGroups, serverGroups)
-	serverResources, err := clientset.DiscoveryClient.ServerPreferredResources()
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf(":: %T %#v\n\n\n\n\n", serverResources, serverResources)
-	os.Exit(0)
 
 	// Please
 	config.GroupVersion = &schema.GroupVersion{Version: "v1"}
@@ -85,12 +54,13 @@ func main() {
 	printyeUnstructuredList("namespaces", obj.(*unstructured.UnstructuredList), os.Stdout)
 
 	config.APIPath = "/apis"
-	config.GroupVersion = &schema.GroupVersion{Group: "extensions", Version: "v1beta1"}
+	fmt.Printf("\n:resource yo %#v\n\n", resources["Deployment"])
+	config.GroupVersion = &schema.GroupVersion{Group: resources["Deployment"].Group, Version: resources["Deployment"].Version}
 	dyn, err = dynamic.NewClient(config)
 	if err != nil {
 		panic(err)
 	}
-	obj, err = dyn.Resource(&meta_v1.APIResource{Name: "deployments"}, "default").List(meta_v1.ListOptions{})
+	obj, err = dyn.Resource(&meta_v1.APIResource{Name: resources["Deployment"].Name}, "default").List(meta_v1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -131,6 +101,81 @@ func main() {
 			fmt.Printf(":: evt %T %#v\n\n", evt, evt)
 		}
 	}
+}
+
+// This function wraps k8s `discovery.Client` and makes it actually return sane,
+// usable data:
+//
+//   - it massages the results so "group" and "version" are actually *in*
+//     the `APIResource` objects, instead of in a weird place off to one side
+//     that's a huge PITA to pass around;
+//   - it returns things in a map, indexed by the actual Kind name, instead
+//     of making you continue to fumble around looking for the one thing you
+//     probably wanted this entire time;
+//   - it doesn't bother you with anything except the server's preferredVersions;
+//   - and if the server has the same "Kind" listed under more than one group,
+//     welp, that's funny.  Last one in the list wins.
+//
+// tl;dr probably what you wanted 99.9999999% of the time.
+// And the other 0.0000001% of the time, you're writing a discovery client printer.
+//
+// NOTE: I said indexed by the "Kind".  So, e.g., "Deployment", title-case.
+// The "Kind" seems to be the most consistently used string across the project.
+// The API route slug is typically different cased, and inflected to be plural --
+// this is just to make you squirm, as far as I can figure out.
+// Fortunately, the inflected API route slugs can be read in the APIResource objects.
+//
+// NOTE: I feel *bad* about that cavalier comment about the same Kind name existing
+// under multiple groups being a problem, but *it's true*.  It's *very* unfortunate,
+// since the point of "groups" was for some namespacing here, but *critical* parts
+// of the k8s ecosystem -- namely, the "Deployment" kind -- has been jumping around
+// between different groups for several releases, and uhm, we kind of need to track
+// that one.  It's only like... the linchpin of almost all production services.  NBD.
+//
+// NOTE: Despite all our bests efforts to sanitize this process, it still wastes
+// about 1.5 seconds *wall clock* on network RTTs for the auto-discover.
+// I think it's *horrific* if a tool like this can't run *without* disk write, but
+// some sort of cache really might be a practical necessity given the deck we've
+// been dealt with this discovery API.
+//
+func saneDiscovery(c *rest.Config) (map[string]meta_v1.APIResource, error) {
+	discoClient, err := discovery.NewDiscoveryClientForConfig(c)
+	if err != nil {
+		return nil, err
+	}
+	groupedResources, err := discoClient.ServerPreferredResources()
+	if err != nil {
+		return nil, err
+	}
+	// This is a list of... lists... why
+	indexedResources := make(map[string]meta_v1.APIResource)
+	for _, resourceGroup := range groupedResources {
+		// Parse the 'GroupVersion' field back apart... because god forbid anyone
+		// on some sort of design committee choose whether that's consistently
+		// supposed to be one conjoined or two strings across the entire project.
+		groupVersion, err := schema.ParseGroupVersion(resourceGroup.GroupVersion)
+		if err != nil {
+			panic(err) // protocol violation, do not want.
+		}
+
+		// Range again over the actual *resources* in the group.
+		// You'd think we'd already have things normalized to that form, since we
+		// asked for `ServerPreferredResources` above, but alas, no.
+		for _, resource := range resourceGroup.APIResources {
+			// Set the group and version to true values.
+			// Again, consistently in our inconsistency here in k8s land, this
+			// actually uses two string fields *separately*, rather than *either*
+			// the conjoined string we just got, nor the schema.GroupVersion tuple
+			// which is its most canonical representation and used through most
+			// of the rest of the client APIs.  YOLO; why bother making choices?
+			resource.Group = groupVersion.Group
+			resource.Version = groupVersion.Version
+
+			// Index.
+			indexedResources[resource.Kind] = resource
+		}
+	}
+	return indexedResources, nil
 }
 
 func printyeUnstructuredList(label string, list *unstructured.UnstructuredList, to io.Writer) {
