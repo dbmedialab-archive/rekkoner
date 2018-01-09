@@ -41,13 +41,7 @@ func main() {
 	}
 
 	// Please
-	config.GroupVersion = &schema.GroupVersion{Version: "v1"}
-	config.APIPath = "/api"
-	dyn, err := dynamic.NewClient(config)
-	if err != nil {
-		panic(err)
-	}
-	obj, err := dyn.Resource(&meta_v1.APIResource{Name: "namespaces"}, "").List(meta_v1.ListOptions{})
+	obj, err := listDynamically(config, resources, "Namespace", "").List(meta_v1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -196,7 +190,26 @@ func listDynamically(c *rest.Config, allThings map[string]meta_v1.APIResource, t
 	confCopy := *c
 	c = &confCopy
 	// Specify an API path.
-	c.APIPath = "/apis"
+	//
+	// Surely this can't be that complicated, you say!  Well...
+	//
+	// OBVIOUSLY, this can be two different paths, right at the base.
+	// OBVIOUSLY, this was necessary to separate the grouped API extensions...
+	// despite the fact *the groups themselves do that*.
+	// OBVIOUSLY, the clear way to handle this isn't to migrate everything to groups;
+	// OBVIOUSLY, we should leave the "core" "legacy" APIs on a separate base path;
+	// OBVIOUSLY, we should indicate this by letting you parse the GroupVersion string
+	// and checking if it has a slash in it (obviously indicating lack of group),
+	// and OBVIOUSLY, separating things by "/api/" vs "/apis/" will be VERY clear,
+	// since it's not like we used inflected pluralizations anywhere else in the API
+	// (oh wait literally everywhere).
+	//
+	// All this is documented at https://kubernetes.io/docs/concepts/overview/kubernetes-api/#api-groups
+	if resourceDesc.Group == "" {
+		c.APIPath = "/api"
+	} else {
+		c.APIPath = "/apis"
+	}
 	// This may look odd and redundant, because these fields are in the APIResource
 	// object that we're about to give to the `Resource` method anyway, but they're
 	// not actually used by that method (god forbid the arguments give you a hint
