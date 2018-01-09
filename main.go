@@ -53,14 +53,7 @@ func main() {
 	}
 	printyeUnstructuredList("namespaces", obj.(*unstructured.UnstructuredList), os.Stdout)
 
-	config.APIPath = "/apis"
-	fmt.Printf("\n:resource yo %#v\n\n", resources["Deployment"])
-	config.GroupVersion = &schema.GroupVersion{Group: resources["Deployment"].Group, Version: resources["Deployment"].Version}
-	dyn, err = dynamic.NewClient(config)
-	if err != nil {
-		panic(err)
-	}
-	obj, err = dyn.Resource(&meta_v1.APIResource{Name: resources["Deployment"].Name}, "default").List(meta_v1.ListOptions{})
+	obj, err = listDynamically(config, resources, "Deployment", "default").List(meta_v1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -180,6 +173,41 @@ func saneDiscovery(c *rest.Config) (map[string]meta_v1.APIResource, error) {
 		}
 	}
 	return indexedResources, nil
+}
+
+// TODO we probably want to bundle the rest.Config and the cache (also indexed, ffs) of APIResource info into one object.
+
+func listDynamically(c *rest.Config, allThings map[string]meta_v1.APIResource, theThing string, namespace string) dynamic.ResourceInterface {
+	// Pick out the relevant APIResource info.
+	resourceDesc, ok := allThings[theThing]
+	if !ok {
+		panic(fmt.Errorf("no resource called %q available on this server", theThing))
+	}
+
+	// Massage the REST config first.  Most of these fields are in the APIResource
+	// objectthat we're about to give to the `Resource` method anyway, but they're
+	// not actually used by that method (god forbid the arguments give you a hint
+	// at what a method will *do*, apparently).
+	//
+	// I'd do a DeepCopy on this so we don't mutate the object from our caller, but
+	// *that isn't actually possible* because that returns a completely different
+	// type!  So, yeah, that method is both worse than useless and absolutely
+	// does not do what it says on the tin.
+	c.APIPath = "/apis"
+	c.GroupVersion = &schema.GroupVersion{Group: resourceDesc.Group, Version: resourceDesc.Version}
+	dyn, err := dynamic.NewClient(c)
+	// Audit of 'rest.RESTClientFor' indicates this error is only possible from
+	// invalid configuration (e.g., we're not doing any network action yet, thank
+	// deity), so, we'll treat it as a panick-worthy offence.
+	if err != nil {
+		panic(err)
+	}
+
+	// We *do not* care about the ratelimiter, because it's a half-baked idea and with no semantic QOS can cause ugly disordered starvation issues.
+	// We *do not* care about setting a ParameterCodec.  We went through *all* this work to get as close to bare, iterable maps and lists as possible.
+	// That leaves nothing but the `Resource` method.  Meaning... we don't carea bout the `dynamic.Client` type *at all*.
+	// And thus we shan't return one.  We'll give you the `ResourceInterface` already built.
+	return dyn.Resource(&meta_v1.APIResource{Name: resourceDesc.Name}, namespace)
 }
 
 func printyeUnstructuredList(label string, list *unstructured.UnstructuredList, to io.Writer) {
