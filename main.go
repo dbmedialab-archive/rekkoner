@@ -7,12 +7,9 @@ import (
 
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp" // Side-effecting import: load the GCP auth plugin, necessary if your kubeconfig references that.
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -28,19 +25,13 @@ func main() {
 		panic(err)
 	}
 
-	// creates the clientset
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(err)
-	}
-
 	// Figuring out groups, versions, etc:
 	resources, err := saneDiscovery(config)
 	if err != nil {
 		panic(err)
 	}
 
-	// Please
+	// List a snapshot of state for some various resources.
 	obj, err := listDynamically(config, resources, "Namespace", "").List(meta_v1.ListOptions{})
 	if err != nil {
 		panic(err)
@@ -53,30 +44,13 @@ func main() {
 	}
 	printyeUnstructuredList("deployments", obj.(*unstructured.UnstructuredList), os.Stdout)
 
-	// Okay, trying to figure out what this cacher thing does and I ended up having
-	// to read a `NewNamedReflector` factory and *still* haven't found any meat...
-	// fuck this.  This is the worst architecture astronauting I've ever seen.
-	// I literally can't find any logic that *does* *any* *thing*.
+	// Set up watchers and demonstrate change detection on some other resources.
 
-	watchFunc := func(c rest.Interface, resource string, namespace string, fieldSelector fields.Selector) (watch.Interface, error) {
-		options := meta_v1.ListOptions{}
-		options.Watch = true
-		options.FieldSelector = fieldSelector.String()
-		return c.Get().
-			Namespace(namespace).
-			Resource(resource).
-			VersionedParams(&options, meta_v1.ParameterCodec).
-			Watch() // I think I'm actually pretty ok with using their API up to right about here.
-		// nope it still already did the hypermagic typed deserialize
-		// I really don't want that
-		// it is so fucking much easier to iterate over *maps* to do this job
-		// i'm literally going to back ALLLLL the way up off to doing my own rest client.
-	}
-	watchNS, err := watchFunc(clientset.CoreV1().RESTClient(), "namespaces", "", fields.Everything())
+	watchNS, err := listDynamically(config, resources, "Namespace", "").Watch(meta_v1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
-	watchPods, err := watchFunc(clientset.CoreV1().RESTClient(), "pods", "", fields.Everything())
+	watchPods, err := listDynamically(config, resources, "Pod", "").Watch(meta_v1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
