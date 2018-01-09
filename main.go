@@ -190,6 +190,12 @@ func listDynamically(c *rest.Config, allThings map[string]meta_v1.APIResource, t
 	// *that isn't actually possible* because that returns a completely different
 	// type!  So, yeah, that method is both worse than useless and absolutely
 	// does not do what it says on the tin.
+	//
+	// This dereference-put-on-stack-and-grab-new-reference hijink does a copy.
+	// It's the same thing `dynamic.NewClient` does, so it must be fine.
+	confCopy := *c
+	c = &confCopy
+	// Specify an API path.
 	c.APIPath = "/apis"
 	// This may look odd and redundant, because these fields are in the APIResource
 	// object that we're about to give to the `Resource` method anyway, but they're
