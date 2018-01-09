@@ -184,17 +184,24 @@ func listDynamically(c *rest.Config, allThings map[string]meta_v1.APIResource, t
 		panic(fmt.Errorf("no resource called %q available on this server", theThing))
 	}
 
-	// Massage the REST config first.  Most of these fields are in the APIResource
-	// objectthat we're about to give to the `Resource` method anyway, but they're
-	// not actually used by that method (god forbid the arguments give you a hint
-	// at what a method will *do*, apparently).
+	// Massage the REST config first.
 	//
 	// I'd do a DeepCopy on this so we don't mutate the object from our caller, but
 	// *that isn't actually possible* because that returns a completely different
 	// type!  So, yeah, that method is both worse than useless and absolutely
 	// does not do what it says on the tin.
 	c.APIPath = "/apis"
+	// This may look odd and redundant, because these fields are in the APIResource
+	// object that we're about to give to the `Resource` method anyway, but they're
+	// not actually used by that method (god forbid the arguments give you a hint
+	// at what a method will *do*, apparently), so we must set them here.
+	//
+	// (And why Yes, astute reader, we *did* just have to separate the `GroupVersion`
+	// struct into separate `Group` and `Version` strings just moments ago, to
+	// fabricate this very `APIResource` object which we are now taking apart to...
+	// yes, build a `GroupVersion` object again.  Whee!  Consistency!)
 	c.GroupVersion = &schema.GroupVersion{Group: resourceDesc.Group, Version: resourceDesc.Version}
+	// This is the only line of this function which is (arguably) not a joke.
 	dyn, err := dynamic.NewClient(c)
 	// Audit of 'rest.RESTClientFor' indicates this error is only possible from
 	// invalid configuration (e.g., we're not doing any network action yet, thank
@@ -207,7 +214,7 @@ func listDynamically(c *rest.Config, allThings map[string]meta_v1.APIResource, t
 	// We *do not* care about setting a ParameterCodec.  We went through *all* this work to get as close to bare, iterable maps and lists as possible.
 	// That leaves nothing but the `Resource` method.  Meaning... we don't carea bout the `dynamic.Client` type *at all*.
 	// And thus we shan't return one.  We'll give you the `ResourceInterface` already built.
-	return dyn.Resource(&meta_v1.APIResource{Name: resourceDesc.Name}, namespace)
+	return dyn.Resource(&resourceDesc, namespace)
 }
 
 func printyeUnstructuredList(label string, list *unstructured.UnstructuredList, to io.Writer) {
