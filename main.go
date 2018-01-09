@@ -132,6 +132,10 @@ func main() {
 // between different groups for several releases, and uhm, we kind of need to track
 // that one.  It's only like... the linchpin of almost all production services.  NBD.
 //
+// NOTE FURTHER: Despite the discovery client's API returning a *list*, it's *not
+// consistently ordered*, so collisions will have overall nondeterministic results.
+// I don't know if it's the discovery client or the remote API itself being chaotic.
+//
 // NOTE: Despite all our bests efforts to sanitize this process, it still wastes
 // about 1.5 seconds *wall clock* on network RTTs for the auto-discover.
 // I think it's *horrific* if a tool like this can't run *without* disk write, but
