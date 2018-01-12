@@ -8,6 +8,7 @@ import (
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp" // Side-effecting import: load the GCP auth plugin, necessary if your kubeconfig references that.
@@ -31,22 +32,12 @@ func main() {
 		panic(err)
 	}
 
-	// List a snapshot of state for some various resources.
-	obj, err := listDynamically(config, resources, "Namespace", "").List(meta_v1.ListOptions{})
-	if err != nil {
-		panic(err)
-	}
-	printyeUnstructuredList("namespaces", obj.(*unstructured.UnstructuredList), os.Stdout)
-
-	obj, err = listDynamically(config, resources, "Deployment", "default").List(meta_v1.ListOptions{})
-	if err != nil {
-		panic(err)
-	}
-	printyeUnstructuredList("deployments", obj.(*unstructured.UnstructuredList), os.Stdout)
-
 	// Set up watchers and demonstrate change detection on some other resources.
-
 	watchNS, err := listDynamically(config, resources, "Namespace", "").Watch(meta_v1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+	watchDeployments, err := listDynamically(config, resources, "Deployment", "").Watch(meta_v1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -54,14 +45,33 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	watchEvents, err := listDynamically(config, resources, "Event", "").Watch(meta_v1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
 	for {
 		select {
 		case evt := <-watchNS.ResultChan():
-			fmt.Printf(":: evt %T %#v\n\n", evt, evt)
+			printyeEvent("namespace", evt, os.Stdout)
+		case evt := <-watchDeployments.ResultChan():
+			printyeEvent("deployment", evt, os.Stdout)
 		case evt := <-watchPods.ResultChan():
-			fmt.Printf(":: evt %T %#v\n\n", evt, evt)
+			printyeEvent("pod", evt, os.Stdout)
+		case evt := <-watchEvents.ResultChan():
+			printyeEvent("event", evt, os.Stdout)
+			//msg, _ := json.Marshal(evt.Object)
+			//fmt.Printf("\t%s\n", string(msg))
 		}
 	}
+}
+
+func printyeEvent(label string, evt watch.Event, to io.Writer) {
+	fmt.Fprintf(to, ":: evt %-12s %-9v: name=%-65s resourceVersion=%-10s\n",
+		label,
+		evt.Type,
+		evt.Object.(*unstructured.Unstructured).Object["metadata"].(map[string]interface{})["name"],
+		evt.Object.(*unstructured.Unstructured).Object["metadata"].(map[string]interface{})["resourceVersion"],
+	)
 }
 
 // This function wraps k8s `discovery.Client` and makes it actually return sane,
