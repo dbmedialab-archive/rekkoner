@@ -6,16 +6,19 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
+	"github.com/dbmedialab/rekkoner"
 	"github.com/dbmedialab/rekkoner/velcro/k8s"
 )
 
 func main() {
 	// Find k8s objects in files.
-	allObjs := []unstructured.Unstructured{}
+	intent := rekkoner.Intent{}.Init()
+	rootPath := os.Args[1]
 	fileCount := 0 // just for informational purposes
 	walkFunc := func(path string, info os.FileInfo, err error) error {
 		// Only interested in plain files.
@@ -46,29 +49,35 @@ func main() {
 		if len(objs) > 0 {
 			fileCount++
 		}
-		allObjs = append(allObjs, objs...)
+		for i, obj := range objs {
+			intentPath := rekkoner.IntentPath(fmt.Sprintf("%s!%d",
+				strings.TrimSuffix(strings.TrimPrefix(path, rootPath), filepath.Ext(path)),
+				i,
+			))
+			intent.Objs[intentPath] = obj
+		}
 		return nil
 	}
-	if err := filepath.Walk(os.Args[1], walkFunc); err != nil {
+	if err := filepath.Walk(rootPath, walkFunc); err != nil {
 		log.Fatalf("error: %s\n", err)
 	}
 
 	// Doing some grouping.
 	objsGroupByKind := map[string][]unstructured.Unstructured{}
-	for _, obj := range allObjs {
+	for _, obj := range intent.Objs {
 		kind := obj.Object["kind"].(string)
 		objsGroupByKind[kind] = append(objsGroupByKind[kind], obj)
 	}
 
 	// Range over our discoveries and print some summary.
-	fmt.Printf("Found %d objects in %d files:\n", len(allObjs), fileCount)
+	fmt.Printf("Found %d objects in %d files:\n", len(intent.Objs), fileCount)
 	for _, persp := range perspectiveCfg {
 		fmt.Printf("  % 22s : %d\n", persp.Kind, len(objsGroupByKind[persp.Kind]))
 		// TODO handle unknowns
 	}
 	fmt.Printf("In short, here are all the objs:\n")
-	for _, obj := range allObjs {
-		fmt.Printf("  %s\n", perspectiveMap[obj.Object["kind"].(string)].Shortname(obj))
+	for intentPath, obj := range intent.Objs {
+		fmt.Printf("    %-54s >> %s\n", intentPath, perspectiveMap[obj.Object["kind"].(string)].Shortname(obj))
 	}
 }
 
