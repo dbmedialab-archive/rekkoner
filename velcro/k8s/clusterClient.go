@@ -32,7 +32,7 @@ type Client struct {
 }
 
 func LoadClientConfig(filepath string) (cli *Client, err error) {
-	*cli = Client{}
+	cli = &Client{}
 
 	// creates the connection
 	cli.cc, err = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
