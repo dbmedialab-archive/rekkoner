@@ -46,15 +46,20 @@ func main() {
 		if err != nil {
 			log.Printf("error: %q: %s\n", path, err)
 		}
-		if len(objs) > 0 {
+		// Merge objs, labelling them with the file they originate from.
+		relPath := strings.TrimSuffix(strings.TrimPrefix(path, rootPath), filepath.Ext(path))
+		switch len(objs) {
+		case 0:
+			// an error?
+		case 1:
 			fileCount++
-		}
-		for i, obj := range objs {
-			intentPath := rekkoner.IntentPath(fmt.Sprintf("%s!%d",
-				strings.TrimSuffix(strings.TrimPrefix(path, rootPath), filepath.Ext(path)),
-				i,
-			))
-			intent.Objs[intentPath] = obj
+			intentPath := rekkoner.IntentPath(relPath)
+			intent.Objs[intentPath] = objs[0]
+		default:
+			for i, obj := range objs {
+				intentPath := rekkoner.IntentPath(fmt.Sprintf("%s!%d", relPath, i))
+				intent.Objs[intentPath] = obj
+			}
 		}
 		return nil
 	}
