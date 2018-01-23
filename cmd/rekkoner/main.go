@@ -74,13 +74,13 @@ func main() {
 
 var perspectiveCfg = []Perspective{
 	{"Namespace", "{{.metadata.name}}"},
-	{"Service", ""},
-	{"Deployment", ""},
-	{"ConfigMap", ""},
-	{"Ingress", ""},
-	{"StatefulSet", ""},
-	{"PersistentVolumeClaim", ""},
-	{"PersistentVolume", ""},
+	{"Service", "{{.metadata.name}}"},
+	{"Deployment", "{{.metadata.name}}"},
+	{"ConfigMap", "{{.metadata.name}}"},
+	{"Ingress", "{{.metadata.name}}"},
+	{"StatefulSet", "{{.metadata.name}}"},
+	{"PersistentVolumeClaim", "{{.metadata.name}}"},
+	{"PersistentVolume", "{{.metadata.name}}"},
 }
 
 var perspectiveMap = map[string]Perspective{}
