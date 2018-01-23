@@ -13,5 +13,9 @@ metadata:
   labels:
     environment: "{{env \"ENV\"}}"
 `)
-	t.Logf("parsed as: %#v\n", DecodeObjects(f))
+	objs, err := DecodeObjects(f)
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+	t.Logf("parsed as: %#v\n", objs)
 }
