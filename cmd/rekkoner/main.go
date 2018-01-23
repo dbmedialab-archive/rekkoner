@@ -86,6 +86,37 @@ func main() {
 		obj := intent.Objs[intentPath]
 		fmt.Printf("    %-54s >> %s\n", intentPath, perspectiveMap[obj.Object["kind"].(string)].Shortname(obj))
 	}
+	fmt.Printf("--------------------------\n")
+
+	// Okay funtime: clouds:
+	// Get lists of all objects of the kinds we have perspective on.
+	// (We'll figure out joins between this and the intent later.)
+	cli, err := k8s.LoadClientConfig(os.Getenv("KUBECONFIG"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Here are all the objs of those kinds in the cluster:\n")
+	for _, persp := range perspectiveCfg {
+		list, err := cli.Protorequest(persp.Kind, "").List(k8s.ListOptions{})
+		if err != nil {
+			log.Printf("error fetching %s: %s\n", persp.Kind, err)
+			return
+		}
+		for _, obj := range list.(*k8s.UnstructuredList).Items {
+			fmt.Printf("    %-54s >> %s\n", "", persp.Shortname(obj))
+		}
+	}
+
+	// Join cloud and intent.
+	for _, intentPath := range intent.Keys {
+		obj := intent.Objs[intentPath]
+		// TODO welp, actually unsolved problems here.
+		// Usually we compare the namespace+name?
+		// Some odd cases like Pods though.  Is it *just* pods that are odd?
+		// No, it's not.  PersistentVolumeClaim seem to be 1:n, among others.
+		_ = obj
+	}
+
 }
 
 var perspectiveCfg = []Perspective{
