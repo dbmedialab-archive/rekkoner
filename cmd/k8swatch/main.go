@@ -6,10 +6,6 @@ import (
 	"io"
 	"os"
 
-	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/watch"
-
 	"github.com/dbmedialab/rekkoner/velcro/k8s"
 )
 
@@ -21,19 +17,19 @@ func main() {
 	}
 
 	// Set up watchers and demonstrate change detection on some other resources.
-	watchNS, err := cli.Protorequest("Namespace", "").Watch(meta_v1.ListOptions{})
+	watchNS, err := cli.Protorequest("Namespace", "").Watch(k8s.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
-	watchDeployments, err := cli.Protorequest("Deployment", "").Watch(meta_v1.ListOptions{})
+	watchDeployments, err := cli.Protorequest("Deployment", "").Watch(k8s.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
-	watchPods, err := cli.Protorequest("Pod", "").Watch(meta_v1.ListOptions{})
+	watchPods, err := cli.Protorequest("Pod", "").Watch(k8s.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
-	watchEvents, err := cli.Protorequest("Event", "").Watch(meta_v1.ListOptions{})
+	watchEvents, err := cli.Protorequest("Event", "").Watch(k8s.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -53,16 +49,16 @@ func main() {
 	}
 }
 
-func printyeEvent(label string, evt watch.Event, to io.Writer) {
+func printyeEvent(label string, evt k8s.WatchEvent, to io.Writer) {
 	fmt.Fprintf(to, ":: evt %-12s %-9v: name=%-65s resourceVersion=%-10s\n",
 		label,
 		evt.Type,
-		evt.Object.(*unstructured.Unstructured).Object["metadata"].(map[string]interface{})["name"],
-		evt.Object.(*unstructured.Unstructured).Object["metadata"].(map[string]interface{})["resourceVersion"],
+		evt.Object.(*k8s.Unstructured).Object["metadata"].(map[string]interface{})["name"],
+		evt.Object.(*k8s.Unstructured).Object["metadata"].(map[string]interface{})["resourceVersion"],
 	)
 }
 
-func printyeUnstructuredList(label string, list *unstructured.UnstructuredList, to io.Writer) {
+func printyeUnstructuredList(label string, list *k8s.UnstructuredList, to io.Writer) {
 	fmt.Fprintf(to, "%s [%s] >>\n", label, list.Object["metadata"].(map[string]interface{})["selfLink"])
 	for i, item := range list.Items {
 		actualItem := item.Object

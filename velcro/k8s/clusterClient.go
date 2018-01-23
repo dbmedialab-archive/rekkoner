@@ -4,12 +4,23 @@ import (
 	"fmt"
 
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp" // Side-effecting import: load the GCP auth plugin, necessary if your kubeconfig references that.
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+)
+
+// Alias the few most utterly ubiquitous objects.
+type (
+	Unstructured     = unstructured.Unstructured     // use `Unstructured` to receive most objects.
+	UnstructuredList = unstructured.UnstructuredList // use for the few things that aren't `Unstructured`.
+	ListOptions      = meta_v1.ListOptions           // use in e.g. `Protorequest(...).Watch(ListOptions{})`.
+	WatchHandle      = watch.Interface               // this handle is the controller for watches.
+	WatchEvent       = watch.Event                   // these holder types are WatchHandle's channel content type.
 )
 
 // Client wraps up a couple things that always seem to belong together.
