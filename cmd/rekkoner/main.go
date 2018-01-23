@@ -66,6 +66,7 @@ func main() {
 	if err := filepath.Walk(rootPath, walkFunc); err != nil {
 		log.Fatalf("error: %s\n", err)
 	}
+	intent.Sync()
 
 	// Doing some grouping.
 	objsGroupByKind := map[string][]unstructured.Unstructured{}
@@ -81,7 +82,8 @@ func main() {
 		// TODO handle unknowns
 	}
 	fmt.Printf("In short, here are all the objs:\n")
-	for intentPath, obj := range intent.Objs {
+	for _, intentPath := range intent.Keys {
+		obj := intent.Objs[intentPath]
 		fmt.Printf("    %-54s >> %s\n", intentPath, perspectiveMap[obj.Object["kind"].(string)].Shortname(obj))
 	}
 }
