@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
+	"reflect"
 
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -31,6 +33,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	fmt.Printf("known Kinds: %v\n---\n", reflect.ValueOf(resources).MapKeys())
 
 	// Set up watchers and demonstrate change detection on some other resources.
 	watchNS, err := listDynamically(config, resources, "Namespace", "").Watch(meta_v1.ListOptions{})
@@ -59,8 +62,8 @@ func main() {
 			printyeEvent("pod", evt, os.Stdout)
 		case evt := <-watchEvents.ResultChan():
 			printyeEvent("event", evt, os.Stdout)
-			//msg, _ := json.Marshal(evt.Object)
-			//fmt.Printf("\t%s\n", string(msg))
+			msg, _ := json.Marshal(evt.Object)
+			fmt.Printf("\t%s\n", string(msg))
 		}
 	}
 }
