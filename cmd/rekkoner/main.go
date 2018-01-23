@@ -18,6 +18,16 @@ func main() {
 		if !info.Mode().IsRegular() {
 			return nil
 		}
+		// Do some filtering by name.
+		// TODO This should get either more rigorous or more flag-controlled or... something.
+		// ECOSYSTEM: issue with secrets files in truthy may or may not be parsible depending on git-filter state fun.
+		switch filepath.Ext(path) {
+		case ".yaml", ".yml":
+			// pass!
+		default:
+			log.Printf("skipping %q, not yaml extension", path)
+			return nil
+		}
 		// Open file and parse.
 		// The k8s parser will error for things like "Object 'Kind' is missing",
 		//  so we're fairlyyyy sure we've got sane k8s objects if no error.
