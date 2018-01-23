@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"text/template"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 
@@ -64,10 +66,14 @@ func main() {
 		fmt.Printf("  % 22s : %d\n", persp.Kind, len(objsGroupByKind[persp.Kind]))
 		// TODO handle unknowns
 	}
+	fmt.Printf("In short, here are all the objs:\n")
+	for _, obj := range allObjs {
+		fmt.Printf("  %s\n", perspectiveMap[obj.Object["kind"].(string)].Shortname(obj))
+	}
 }
 
 var perspectiveCfg = []Perspective{
-	{"Namespace", ""},
+	{"Namespace", "{{.metadata.name}}"},
 	{"Service", ""},
 	{"Deployment", ""},
 	{"ConfigMap", ""},
@@ -77,10 +83,33 @@ var perspectiveCfg = []Perspective{
 	{"PersistentVolume", ""},
 }
 
+var perspectiveMap = map[string]Perspective{}
+
+func init() {
+	for _, persp := range perspectiveCfg {
+		perspectiveMap[persp.Kind] = persp
+	}
+}
+
 // Perspective configures how we see certain Kinds of k8s object.
 // We use it to govern how we print shorthand references to it,
 // which fields we diff aggressively vs ignore, etc.
 type Perspective struct {
 	Kind              string // kind name.  CamelCase, as in k8s.
 	ShortnameTemplate string
+}
+
+func (p Perspective) Shortname(obj unstructured.Unstructured) string {
+	return fmt.Sprintf("%s::%s", p.Kind, p.ShortnameBare(obj))
+}
+
+func (p Perspective) ShortnameBare(obj unstructured.Unstructured) string {
+	return tmpl(p.ShortnameTemplate, obj.Object)
+}
+
+func tmpl(tmpl string, obj interface{}) string {
+	t := template.Must(template.New("").Parse(tmpl))
+	var buf bytes.Buffer
+	t.Execute(&buf, obj)
+	return buf.String()
 }
