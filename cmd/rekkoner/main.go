@@ -12,7 +12,9 @@ import (
 )
 
 func main() {
+	// Find k8s objects in files.
 	allObjs := []unstructured.Unstructured{}
+	fileCount := 0 // just for informational purposes
 	walkFunc := func(path string, info os.FileInfo, err error) error {
 		// Only interested in plain files.
 		if !info.Mode().IsRegular() {
@@ -39,16 +41,46 @@ func main() {
 		if err != nil {
 			log.Printf("error: %q: %s\n", path, err)
 		}
+		if len(objs) > 0 {
+			fileCount++
+		}
 		allObjs = append(allObjs, objs...)
 		return nil
 	}
 	if err := filepath.Walk(os.Args[1], walkFunc); err != nil {
 		log.Fatalf("error: %s\n", err)
 	}
-	kindCount := map[string]int{}
+
+	// Doing some grouping.
+	objsGroupByKind := map[string][]unstructured.Unstructured{}
 	for _, obj := range allObjs {
 		kind := obj.Object["kind"].(string)
-		kindCount[kind]++
+		objsGroupByKind[kind] = append(objsGroupByKind[kind], obj)
 	}
-	fmt.Printf("%s\n", kindCount)
+
+	// Range over our discoveries and print some summary.
+	fmt.Printf("Found %d objects in %d files:\n", len(allObjs), fileCount)
+	for _, persp := range perspectiveCfg {
+		fmt.Printf("  % 22s : %d\n", persp.Kind, len(objsGroupByKind[persp.Kind]))
+		// TODO handle unknowns
+	}
+}
+
+var perspectiveCfg = []Perspective{
+	{"Namespace", ""},
+	{"Service", ""},
+	{"Deployment", ""},
+	{"ConfigMap", ""},
+	{"Ingress", ""},
+	{"StatefulSet", ""},
+	{"PersistentVolumeClaim", ""},
+	{"PersistentVolume", ""},
+}
+
+// Perspective configures how we see certain Kinds of k8s object.
+// We use it to govern how we print shorthand references to it,
+// which fields we diff aggressively vs ignore, etc.
+type Perspective struct {
+	Kind              string // kind name.  CamelCase, as in k8s.
+	ShortnameTemplate string
 }
