@@ -120,14 +120,14 @@ func main() {
 }
 
 var perspectiveCfg = []Perspective{
-	{"Namespace", "{{.metadata.name}}"},
-	{"Service", "{{.metadata.name}}"},
-	{"Deployment", "{{.metadata.name}}"},
-	{"ConfigMap", "{{.metadata.name}}"},
-	{"Ingress", "{{.metadata.name}}"},
-	{"StatefulSet", "{{.metadata.name}}"},
-	{"PersistentVolumeClaim", "{{.metadata.name}}"},
-	{"PersistentVolume", "{{.metadata.name}}"},
+	{"Namespace", "*.{{.kind}}.{{.metadata.name}}"}, // not namespaced (obviously)
+	{"Service", "{{.metadata.namespace}}.{{.kind}}.{{.metadata.name}}"},
+	{"Deployment", "{{.metadata.namespace}}.{{.kind}}.{{.metadata.name}}"},
+	{"ConfigMap", "{{.metadata.namespace}}.{{.kind}}.{{.metadata.name}}"},
+	{"Ingress", "{{.metadata.namespace}}.{{.kind}}.{{.metadata.name}}"},
+	{"StatefulSet", "{{.metadata.namespace}}.{{.kind}}.{{.metadata.name}}"},
+	{"PersistentVolumeClaim", "{{.metadata.namespace}}.{{.kind}}.{{.metadata.name}}"},
+	{"PersistentVolume", "*.{{.kind}}.{{.metadata.name}}"}, // not namespaced
 }
 
 var perspectiveMap = map[string]Perspective{}
@@ -147,10 +147,6 @@ type Perspective struct {
 }
 
 func (p Perspective) Shortname(obj unstructured.Unstructured) string {
-	return fmt.Sprintf("%s::%s", p.Kind, p.ShortnameBare(obj))
-}
-
-func (p Perspective) ShortnameBare(obj unstructured.Unstructured) string {
 	return tmpl(p.ShortnameTemplate, obj.Object)
 }
 
