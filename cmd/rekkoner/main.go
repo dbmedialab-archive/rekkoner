@@ -95,14 +95,30 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Printf("Fetching cluster info...\n")
+	cloudByKindGather := map[string]chan []k8s.Unstructured{}
+	for _, persp := range perspectiveCfg {
+		cloudByKindGather[persp.Kind] = make(chan []k8s.Unstructured)
+	}
+	for _, persp := range perspectiveCfg {
+		go func(persp Perspective) {
+			defer close(cloudByKindGather[persp.Kind])
+			list, err := cli.Protorequest(persp.Kind, "").List(k8s.ListOptions{})
+			if err != nil {
+				log.Printf("error fetching %s: %s\n", persp.Kind, err)
+				return
+			}
+			cloudByKindGather[persp.Kind] <- k8s.UnwrapList(list)
+		}(persp)
+	}
+	cloudByKind := map[string][]k8s.Unstructured{}
+	for k, ch := range cloudByKindGather {
+		cloudByKind[k] = <-ch
+	}
+
 	fmt.Printf("Here are all the objs of those kinds in the cluster:\n")
 	for _, persp := range perspectiveCfg {
-		list, err := cli.Protorequest(persp.Kind, "").List(k8s.ListOptions{})
-		if err != nil {
-			log.Printf("error fetching %s: %s\n", persp.Kind, err)
-			return
-		}
-		for _, obj := range list.(*k8s.UnstructuredList).Items {
+		for _, obj := range cloudByKind[persp.Kind] {
 			fmt.Printf("    %-54s >> %s\n", "", persp.Shortname(obj))
 		}
 	}
